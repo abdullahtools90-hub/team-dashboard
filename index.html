@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>My Videos</title>
+  <style>
+
+    :root{
+      --bg:#0b0f17; --bg2:#111827; --card:#151c2b; --card2:#1a2335; --line:#243049;
+      --text:#e8edf7; --muted:#8a96ad; --accent:#7c5cff; --accent2:#22d3ee;
+      --green:#22c55e; --red:#ef4444; --amber:#f59e0b;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;background:var(--bg);color:var(--text);
+      font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+    body{min-height:100vh;background:
+      radial-gradient(900px 400px at 10% -10%,rgba(124,92,255,.25),transparent 60%),
+      radial-gradient(700px 300px at 110% 0%,rgba(34,211,238,.15),transparent 60%),var(--bg)}
+    .wrap{max-width:760px;margin:0 auto;padding:18px 14px 90px}
+
+    /* header */
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;
+      animation:drop .5s ease both}
+    .who{display:flex;align-items:center;gap:12px}
+    .avatar{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:18px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 24px rgba(124,92,255,.35)}
+    .hello{font-size:12px;color:var(--muted)}
+    .name{font-size:19px;font-weight:800;letter-spacing:.2px}
+    .refresh{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);
+      color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;
+      transition:transform .15s,background .2s,border-color .2s}
+    .refresh:hover{border-color:var(--accent)}
+    .refresh:active{transform:scale(.95)}
+    .refresh svg{width:18px;height:18px;transition:transform .3s}
+    .refresh.spin svg{animation:spin .8s linear infinite}
+    .refresh:disabled{opacity:.7;cursor:default}
+
+    /* stats */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px;animation:drop .6s .05s ease both}
+    .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;position:relative;overflow:hidden}
+    .stat:after{content:"";position:absolute;inset:auto -20px -30px auto;width:80px;height:80px;border-radius:50%;opacity:.18}
+    .stat.p:after{background:var(--amber)} .stat.d:after{background:var(--green)} .stat.t:after{background:var(--accent)}
+    .stat .v{font-size:24px;font-weight:800;line-height:1.1}
+    .stat .l{font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.6px}
+    .updated{font-size:11px;color:var(--muted);text-align:right;margin:6px 2px 4px;min-height:14px}
+
+    h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:20px 4px 10px;
+      display:flex;align-items:center;gap:8px}
+    h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 0 rgba(245,158,11,.6);animation:pulse 1.8s infinite}
+    h2 .dot.g{background:var(--green);animation:none}
+
+    /* cards */
+    .card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;
+      padding:14px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;
+      animation:rise .45s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,border-color .2s,opacity .35s,max-height .4s,margin .4s,padding .4s}
+    .card:hover{border-color:#34446a;transform:translateY(-2px)}
+    .card.out{opacity:0;transform:translateX(60px) scale(.96);max-height:0;margin:0;padding:0 14px;border-width:0}
+    .thumb{flex:0 0 46px;height:46px;border-radius:12px;display:grid;place-items:center;
+      background:rgba(124,92,255,.15);color:#b7a6ff}
+    .thumb svg{width:22px;height:22px}
+    .body{flex:1;min-width:0}
+    .fname{font-weight:700;font-size:15px;word-break:break-word;line-height:1.3}
+    .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+    .btn{border:0;border-radius:11px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:transform .12s,background .2s,box-shadow .2s}
+    .btn:active{transform:scale(.95)}
+    .btn svg{width:16px;height:16px}
+    .ghost{background:#1f2a40;color:var(--text);border:1px solid var(--line)}
+    .ghost:hover{background:#26334f}
+    .done{margin-left:auto;background:var(--green);color:#04130a;box-shadow:0 6px 18px rgba(34,197,94,.25)}
+    .done.armed{background:var(--red);color:#fff;box-shadow:0 6px 18px rgba(239,68,68,.35);animation:shake .35s}
+    .done:disabled{opacity:.75;cursor:default}
+    .undo{background:transparent;color:#fca5a5;border:1px solid rgba(239,68,68,.5)}
+    .card.past{opacity:.75}
+    .card.past .fname{text-decoration:line-through;color:var(--muted)}
+    .card.past .thumb{background:rgba(34,197,94,.12);color:var(--green)}
+
+    .mini{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+
+    /* skeleton */
+    .sk{height:96px;border-radius:18px;margin-bottom:12px;border:1px solid var(--line);
+      background:linear-gradient(90deg,var(--card) 0%,#1d2740 50%,var(--card) 100%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+
+    .empty{text-align:center;padding:30px 10px;color:var(--muted);border:1px dashed var(--line);border-radius:18px;animation:rise .4s both}
+    .empty .big{font-size:36px;animation:bob 2.2s ease-in-out infinite}
+    .empty b{display:block;color:var(--text);margin-top:6px}
+
+    .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,120px);background:#1e293b;color:#fff;
+      border:1px solid var(--line);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:92%;
+      box-shadow:0 12px 30px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:20}
+    .toast.show{transform:translate(-50%,0)}
+    .toast.ok{border-color:rgba(34,197,94,.6)} .toast.err{border-color:rgba(239,68,68,.7);background:#3a1218}
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    @keyframes drop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+    @keyframes shimmer{to{background-position:-200% 0}}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}70%{box-shadow:0 0 0 8px rgba(245,158,11,0)}100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+    @media (max-width:420px){.stat .v{font-size:20px}.btn{padding:9px 12px;font-size:13px}}
+  
+    /* player modal */
+    .modal{position:fixed;inset:0;background:rgba(3,6,12,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:30;padding:14px}
+    .modal.show{display:flex;animation:fade .25s ease both}
+    .player{width:min(920px,100%);background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+    .phead{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .ptitle{flex:1;min-width:0;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .x{border:0;background:#1f2a40;color:var(--text);width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
+    .frame{position:relative;aspect-ratio:16/9;background:#000}
+    .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .gate{min-height:70vh;display:grid;place-items:center;text-align:center;padding:30px}
+    .gate b{font-size:20px;display:block;margin:10px 0 6px}
+    .gate .big{font-size:42px}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+  </style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="top">
+    <div class="who">
+      <div class="avatar" id="avatar">•</div>
+      <div><div class="hello">Welcome back 👋</div><div class="name" id="who">Loading…</div></div>
+    </div>
+    <button class="refresh" id="refreshBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+      <span>Refresh</span>
+    </button>
+  </div>
+
+  <div class="stats">
+    <div class="stat p"><div class="v" id="sPending">–</div><div class="l">Pending</div></div>
+    <div class="stat d"><div class="v" id="sToday">–</div><div class="l">Done today</div></div>
+    <div class="stat t"><div class="v" id="sTotal">–</div><div class="l">Recent done</div></div>
+  </div>
+  <div class="updated" id="updated"></div>
+
+  <h2><span class="dot"></span>Pending videos</h2>
+  <div id="pending"><div class="sk"></div><div class="sk"></div></div>
+
+  <h2><span class="dot g"></span>Recently completed</h2>
+  <div id="done"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="player">
+    <div class="phead"><div class="ptitle" id="ptitle"></div><button class="x" id="pclose" type="button" aria-label="Close">✕</button></div>
+    <div class="frame" id="pframe"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+  // Apps Script JSON API (Execute as: owner). The member token comes only from this page's link.
+  var API = 'https://script.google.com/macros/s/AKfycbwe8O86zC7ap1IK9XrJExN3kmW14-pwhQS4LHHTzIZf1tJr95gH1g4DeRZG9dWJ70Lt/exec';
+  var UNDO_MIN = 15;
+
+  var TOKEN = (location.hash || '').replace(/^#/, '');
+  if (!/^[a-f0-9]{64}$/.test(TOKEN)) {
+    var q = new URLSearchParams(location.search).get('t');
+    if (q && /^[a-f0-9]{64}$/.test(q)) TOKEN = q;
+  }
+  var loading = false, guard = null;
+
+  var ICON = {
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="m17 10 5-3v10l-5-3"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>',
+    undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>'
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;   // safe: no HTML injection from file names
+    return e;
+  }
+  function iconBtn(tag, cls, icon, label) {
+    var b = document.createElement(tag); b.className = cls;
+    b.innerHTML = icon; b.appendChild(el('span', '', label));
+    return b;
+  }
+  function ago(ms) {
+    if (!ms) return '';
+    var s = Math.floor((Date.now() - ms) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + ' min ago';
+    if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
+    return new Date(ms).toLocaleDateString();
+  }
+  function toast(msg, type) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.className = 'toast ' + (type || ''); }, 3500);
+  }
+
+  // No cookies are sent, so the multiple-Gmail login problem cannot happen.
+  function api(action, fileId) {
+    return fetch(API, {
+      method: 'POST',
+      credentials: 'omit',
+      redirect: 'follow',
+      body: JSON.stringify({ action: action, token: TOKEN, fileId: fileId || '' })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('Server error (' + r.status + '). Try again.');
+      return r.json();
+    }).then(function (d) {
+      if (!d.ok) throw new Error(d.error || 'Something went wrong');
+      return d;
+    });
+  }
+
+  function setLoading(on) {
+    loading = on;
+    var b = $('refreshBtn');
+    b.disabled = on;
+    b.classList.toggle('spin', on);
+    b.querySelector('span').textContent = on ? 'Checking…' : 'Refresh';
+    clearTimeout(guard);
+    if (on) guard = setTimeout(function () { setLoading(false); }, 40000);
+  }
+
+  function load(manual) {
+    if (loading) return;
+    setLoading(true);
+    api('list').then(function (data) {
+      setLoading(false);
+      render(data);
+      if (manual) toast(data.pending.length ? '✓ Updated — ' + data.pending.length + ' pending' : '✓ Updated — all clear!', 'ok');
+    }).catch(function (err) {
+      setLoading(false);
+      if (/Access denied/i.test(err.message)) return gate('Link invalid or disabled', 'Admin se apna personal link mangwain.');
+      toast(err.message, 'err');
+    });
+  }
+
+  function gate(title, text) {
+    var app = $('app'); app.innerHTML = '';
+    var g = el('div', 'gate'); var box = el('div');
+    box.appendChild(el('div', 'big', '🔒')); box.appendChild(el('b', '', title)); box.appendChild(el('span', '', text));
+    g.appendChild(box); app.appendChild(g);
+  }
+
+  function render(data) {
+    $('who').textContent = data.name || '';
+    $('avatar').textContent = (data.name || '?').trim().charAt(0).toUpperCase();
+    document.title = (data.name || 'My') + ' – Videos';
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var doneToday = data.done.filter(function (f) { return f.completed && f.completed >= today.getTime(); }).length;
+    countUp('sPending', data.pending.length);
+    countUp('sToday', doneToday);
+    countUp('sTotal', data.done.length);
+    $('updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    UNDO_MIN = data.undoMinutes || UNDO_MIN;
+
+    var p = $('pending'); p.innerHTML = '';
+    if (!data.pending.length) {
+      var e = el('div', 'empty'); e.appendChild(el('div', 'big', '🎉')); e.appendChild(el('b', '', 'All caught up!'));
+      e.appendChild(el('span', '', 'New videos will appear here automatically.')); p.appendChild(e);
+    }
+    data.pending.forEach(function (f, i) { var c = pendingCard(f); c.style.animationDelay = (i * 60) + 'ms'; p.appendChild(c); });
+
+    var d = $('done'); d.innerHTML = '';
+    if (!data.done.length) d.appendChild(el('div', 'empty', 'Nothing completed yet.'));
+    data.done.forEach(function (f, i) { var c = doneCard(f); c.style.animationDelay = (i * 40) + 'ms'; d.appendChild(c); });
+  }
+
+  function countUp(id, to) {
+    var node = $(id), from = parseInt(node.textContent, 10) || 0, start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var k = Math.min((ts - start) / 400, 1);
+      node.textContent = Math.round(from + (to - from) * k);
+      if (k < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function openPlayer(f) {
+    $('ptitle').textContent = f.name;
+    var fr = document.createElement('iframe');
+    fr.src = 'https://drive.google.com/file/d/' + encodeURIComponent(f.id) + '/preview';
+    fr.allow = 'autoplay; fullscreen';
+    fr.setAttribute('allowfullscreen', '');
+    $('pframe').innerHTML = ''; $('pframe').appendChild(fr);
+    $('modal').classList.add('show');
+  }
+  function closePlayer() { $('modal').classList.remove('show'); $('pframe').innerHTML = ''; }
+  $('pclose').onclick = closePlayer;
+  $('modal').addEventListener('click', function (e) { if (e.target === this) closePlayer(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePlayer(); });
+
+  function pendingCard(f) {
+    var c = el('div', 'card');
+    var th = el('div', 'thumb'); th.innerHTML = ICON.video; c.appendChild(th);
+    var b = el('div', 'body');
+    b.appendChild(el('div', 'fname', f.name));
+    b.appendChild(el('div', 'meta', (f.sizeMb ? f.sizeMb + ' MB · ' : '') + 'Added ' + ago(f.detected)));
+    var a = el('div', 'actions');
+
+    var play = iconBtn('button', 'btn ghost', ICON.play, 'Play');
+    play.type = 'button';
+    play.onclick = function () { openPlayer(f); };
+    var dl = iconBtn('a', 'btn ghost', ICON.down, 'Download');
+    dl.href = 'https://drive.usercontent.google.com/download?id=' + encodeURIComponent(f.id) + '&export=download';
+    dl.target = '_blank'; dl.rel = 'noopener noreferrer';
+
+    var btn = iconBtn('button', 'btn done', ICON.check, 'Completed');
+    btn.type = 'button';
+    var armed = false, timer = null;
+    function reset() { armed = false; btn.className = 'btn done'; btn.querySelector('span').textContent = 'Completed'; }
+    btn.onclick = function () {
+      if (!armed) {
+        armed = true; btn.className = 'btn done armed';
+        btn.querySelector('span').textContent = 'Tap again';
+        timer = setTimeout(reset, 5000);
+        return;
+      }
+      clearTimeout(timer);
+      btn.disabled = true;
+      btn.innerHTML = ''; btn.appendChild(el('div', 'mini')); btn.appendChild(el('span', '', 'Removing…'));
+      api('complete', f.id).then(function (res) {
+        c.classList.add('out');
+        toast(res.warning ? res.warning : '✓ Done! Video removed. Undo within ' + UNDO_MIN + ' min.', 'ok');
+        setTimeout(function () { load(false); }, 450);
+      }).catch(function (err) {
+        btn.disabled = false; btn.innerHTML = ICON.check; btn.appendChild(el('span', '', 'Completed')); reset();
+        toast(err.message, 'err');
+      });
+    };
+
+    a.appendChild(play); a.appendChild(dl); a.appendChild(btn);
+    b.appendChild(a); c.appendChild(b);
+    return c;
+  }
+
+  function doneCard(f) {
+    var c = el('div', 'card past');
+    var th = el('div', 'thumb'); th.innerHTML = ICON.check; c.appendChild(th);
+    var b = el('div', 'body');
+    b.appendChild(el('div', 'fname', f.name));
+    b.appendChild(el('div', 'meta', (f.status === 'Completed' ? 'Removing… · ' : 'Completed · ') + ago(f.completed)));
+    if (f.canUndo) {
+      var a = el('div', 'actions');
+      var u = iconBtn('button', 'btn undo', ICON.undo, 'Undo');
+      u.type = 'button';
+      u.onclick = function () {
+        u.disabled = true; u.querySelector('span').textContent = 'Restoring…';
+        api('undo', f.id).then(function () { toast('↩ Restored', 'ok'); load(false); })
+          .catch(function (err) { u.disabled = false; u.querySelector('span').textContent = 'Undo'; toast(err.message, 'err'); });
+      };
+      a.appendChild(u); b.appendChild(a);
+    }
+    c.appendChild(b);
+    return c;
+  }
+
+  if (!/^[a-f0-9]{64}$/.test(TOKEN)) {
+    gate('Link incomplete', 'Admin ka bheja hua poora link kholein.');
+  } else {
+    $('refreshBtn').addEventListener('click', function () { load(true); });
+    setInterval(function () { if (document.visibilityState === 'visible') load(false); }, 120000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') load(false); });
+    window.addEventListener('hashchange', function () { location.reload(); });
+    load(false);
+  }
+}
+</script>
+</body>
+</html>
